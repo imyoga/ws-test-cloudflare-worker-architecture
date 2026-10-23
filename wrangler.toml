@@ -1,6 +1,7 @@
 name = "ws-test-cloudflare-worker-architecture"
 main = "src/index.js"
 compatibility_date = "2024-10-22"
+compatibility_flags = ["web_socket_auto_reply_to_close"]
 account_id = "2c67e5f86906cd8d813f11218fdd22dc"
 
 [observability]

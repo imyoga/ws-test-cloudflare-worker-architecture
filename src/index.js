@@ -16,19 +16,16 @@ export default {
       // Accept the server end
       server.accept();
 
-      // On new connection, generate a random string with latest timestamp and send it
+      // On new connection, generate a random string with latest timestamp and send it immediately
       const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
       const initialText = `RANDOM-${randomId}`;
       const initialPayload = `${initialText} | TS: ${new Date().toISOString()}`;
       
-      // Send initial message right after handshake completes
-      setTimeout(() => {
-        try {
-          server.send(initialPayload);
-        } catch (e) {
-          // Socket might have closed
-        }
-      }, 50);
+      try {
+        server.send(initialPayload);
+      } catch (e) {
+        console.error("Failed to send initial payload:", e);
+      }
 
       // Handle incoming messages from UI
       server.addEventListener("message", (event) => {
@@ -48,7 +45,19 @@ export default {
       });
 
       server.addEventListener("close", (event) => {
-        console.log(`WebSocket closed: code=${event.code}, reason=${event.reason}`);
+        try {
+          server.close(event.code, event.reason);
+        } catch (e) {
+          // Already closed
+        }
+      });
+
+      server.addEventListener("error", (event) => {
+        try {
+          server.close();
+        } catch (e) {
+          // Already closed
+        }
       });
 
       return new Response(null, {
